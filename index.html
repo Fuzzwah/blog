@@ -12,7 +12,7 @@ title: Home
 			<h3>
 				<a class="post-link" href="{{ post.url | relative_url }}">{{ post.title }}</a>
 			</h3>
-			<p>
+			<div class="post-excerpt">
 				{%- if post.description -%}
 					{{ post.description }}
 				{%- else -%}
@@ -24,7 +24,7 @@ title: Home
 					{%- endif -%}
 					{{ content_without_h1 | truncatewords: 100 }}
 				{%- endif -%}
-			</p>
+			</div>
 		</article>
 		{%- endfor -%}
 	</div>
