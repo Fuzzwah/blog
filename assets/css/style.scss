@@ -32,8 +32,8 @@
 	@import "breakpoints/1200up";
 }
 
-// Custom styles for post excerpts on index
-.post-excerpt {
+// Custom styles for post excerpts on index and post content
+.post-excerpt, .post {
 	h2, h3, h4, h5, h6 {
 		font-size: 1rem;
 		font-weight: normal;
