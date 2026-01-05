@@ -24,6 +24,7 @@ title: Home
 					{%- endif -%}
 					{{ content_without_h1 | truncatewords: 100 }}
 				{%- endif -%}
+				<a href="{{ post.url | relative_url }}" class="read-more">Continue reading &rarr;</a>
 			</div>
 		</article>
 		{%- endfor -%}
