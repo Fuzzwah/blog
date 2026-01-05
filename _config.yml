@@ -4,10 +4,25 @@ description: Blog posts sharing things I've learned about agentic coding
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://blog.fuzzwah.com" # the base hostname & protocol for your site
 
+# Pagination
+paginate_path: "blog/page:num/"
+permalink: /:year/:month/:day/:title/
+
 # Build settings
 markdown: kramdown
-permalink: /:year/:month/:day/:title/
+highlighter: rouge
+plugins: [jekyll-paginate]
+paginate: 5
 timezone: Australia/Sydney  # GMT+10
+
+# Sass
+sass:
+    style: compressed
+
+# Navigation
+navigation:
+    - title: Home
+      url: /index.html
 
 # Collections
 collections:
