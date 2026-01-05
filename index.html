@@ -23,7 +23,7 @@ title: Home
                 {% else %}
                     {% assign content_without_h1 = post.content %}
                 {% endif %}
-                {% assign snippet = content_without_h1 | strip_html | normalize_whitespace | strip | truncatewords: 40 %}
+                {% assign snippet = content_without_h1 | strip_html | normalize_whitespace | strip | truncatewords: 100 %}
                 {% unless snippet == blank %}
                 <div class="post-excerpt">
                     {{ snippet }}
