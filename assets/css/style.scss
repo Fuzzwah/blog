@@ -32,13 +32,43 @@
 	@import "breakpoints/1200up";
 }
 
-// Custom styles for post excerpts on index and post content
-.post-excerpt, .post {
-	h2, h3, h4, h5, h6 {
-		font-size: 1rem;
-		font-weight: normal;
+// Custom styles for post excerpts on index - smaller headers
+.post-excerpt {
+	h2 {
+		font-size: 1.1rem;
 		margin: 0.5em 0;
-		display: inline;
+	}
+	h3 {
+		font-size: 1rem;
+		margin: 0.4em 0;
+	}
+	h4 {
+		font-size: 0.95rem;
+		margin: 0.3em 0;
+	}
+	h5, h6 {
+		font-size: 0.9rem;
+		margin: 0.3em 0;
+	}
+}
+
+// Custom styles for full post content - proportionally smaller than default
+.post {
+	h2 {
+		font-size: 1.8rem;
+		margin: 1.2em 0 0.6em 0;
+	}
+	h3 {
+		font-size: 1.5rem;
+		margin: 1em 0 0.5em 0;
+	}
+	h4 {
+		font-size: 1.3rem;
+		margin: 0.9em 0 0.4em 0;
+	}
+	h5, h6 {
+		font-size: 1.1rem;
+		margin: 0.8em 0 0.3em 0;
 	}
 }
 
