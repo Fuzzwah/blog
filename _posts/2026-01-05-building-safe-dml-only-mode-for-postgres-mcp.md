@@ -11,6 +11,60 @@ But what if you need an AI agent that can insert records, update statuses, or de
 
 That's the use case that led me to build **DML_ONLY mode**: a new access level that allows data manipulation while blocking schema changes.
 
+## The Real-World Wake-Up Call: Django vs. Direct Schema Changes
+
+Here's what actually happened that made me realize we needed this.
+
+I was working on a Django project where the database schema is managed entirely through Django's migration system. This is standard practice:
+
+```python
+# models.py
+class User(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    # Schema changes happen through migrations
+```
+
+```bash
+# The proper way to add a field
+python manage.py makemigrations
+python manage.py migrate
+```
+
+Everything was working perfectly until I gave a coding agent access to the database with UNRESTRICTED mode. The agent was helping me with some data updates when it decided to be "helpful" and added a new field directly:
+
+```sql
+ALTER TABLE users ADD COLUMN phone_number VARCHAR(20);
+```
+
+**The problem?** This completely bypassed Django's migration system.
+
+Now I had:
+- ❌ A database schema that didn't match my models
+- ❌ No migration file tracking this change
+- ❌ No way to reproduce this on other environments
+- ❌ Teammates pulling code that expected a field that didn't exist in their local databases
+- ❌ Production deployments that would fail or behave inconsistently
+
+The agent thought it was helping. Instead, it created a mess that took hours to untangle:
+
+1. Manually create a migration to match the schema change
+2. Roll back the ALTER on dev database
+3. Apply the proper migration
+4. Document what happened so we don't repeat it
+
+This is exactly the scenario DML_ONLY mode prevents. The agent should have been able to:
+- ✅ INSERT new user records
+- ✅ UPDATE phone numbers in existing rows
+- ✅ DELETE invalid data
+
+But it absolutely should **not** have been able to:
+- ❌ ALTER table structure
+- ❌ CREATE new tables
+- ❌ DROP columns
+
+In a framework-managed database environment (Django, Rails, Entity Framework, etc.), schema changes should flow through the framework's migration system, not through direct DDL. DML_ONLY mode enforces this boundary.
+
 ## The Journey Begins: Planning the Implementation
 
 I started by creating a detailed implementation plan in `DML_ONLY_MODE_IMPLEMENTATION.md`. The key insight was to leverage pglast, a PostgreSQL SQL parser for Python, to analyze SQL abstract syntax trees (ASTs) before execution.
