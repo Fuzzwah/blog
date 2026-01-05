@@ -1,7 +1,6 @@
 ---
 title: STDIO vs HTTP MCP Servers in VS Code
 ---
-# STDIO vs HTTP MCP Servers in VS Code: Choosing the Right Transport
 
 ## The Two Paths to MCP Integration
 

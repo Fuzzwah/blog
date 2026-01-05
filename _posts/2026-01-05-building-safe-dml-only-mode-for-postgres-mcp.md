@@ -1,7 +1,6 @@
 ---
 title: Building Safe DML Only Mode For Postgres MCP
 ---
-# Building a Safe Data Manipulation Layer for postgres-mcp
 
 ## The Problem: A Missing Middle Ground
 
