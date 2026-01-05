@@ -13,8 +13,17 @@ title: Home
 				<a class="post-link" href="{{ post.url | relative_url }}">{{ post.title }}</a>
 			</h3>
 			<p>
-				{%- if post.description -%}{{ post.description }}{%- else -%}{{
-				post.excerpt | strip_html }}{%- endif -%}
+				{%- if post.description -%}
+					{{ post.description }}
+				{%- else -%}
+					{%- assign content_parts = post.content | split: '</h1>' -%}
+					{%- if content_parts.size > 1 -%}
+						{%- assign content_without_h1 = content_parts | shift | join: '</h1>' -%}
+					{%- else -%}
+						{%- assign content_without_h1 = post.content -%}
+					{%- endif -%}
+					{{ content_without_h1 | strip_html | truncatewords: 100 }}
+				{%- endif -%}
 			</p>
 		</article>
 		{%- endfor -%}
