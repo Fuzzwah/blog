@@ -65,5 +65,14 @@ Your posts support standard Markdown including:
 
 ## GitHub Pages
 
-This site is automatically published via GitHub Pages. Any changes pushed to the repository will trigger a rebuild and deployment.
+This site is automatically published via GitHub Pages. Any changes pushed to the `main` branch will trigger a GitHub Actions workflow that builds and deploys the site.
+
+The workflow is defined in `.github/workflows/jekyll.yml` and handles:
+- Installing Ruby and dependencies
+- Building the Jekyll site
+- Deploying to GitHub Pages
+
+To enable GitHub Pages for this repository:
+1. Go to Settings → Pages
+2. Under "Build and deployment", select "GitHub Actions" as the source
 
