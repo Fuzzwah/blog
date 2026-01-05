@@ -72,7 +72,33 @@ The workflow is defined in `.github/workflows/jekyll.yml` and handles:
 - Building the Jekyll site
 - Deploying to GitHub Pages
 
-To enable GitHub Pages for this repository:
+### Setting Up GitHub Pages
+
 1. Go to Settings → Pages
 2. Under "Build and deployment", select "GitHub Actions" as the source
+
+### Custom Domain Setup
+
+This blog is configured to use the custom domain `blog.fuzzwah.com`.
+
+**DNS Configuration Steps:**
+
+1. Go to your DNS provider (where you manage fuzzwah.com)
+2. Add a CNAME record:
+   - **Name/Host**: `blog`
+   - **Type**: `CNAME`
+   - **Value/Target**: `fuzzwah.github.io.`
+   - **TTL**: 3600 (or default)
+
+3. Wait for DNS propagation (can take 5 minutes to 48 hours, typically 15-30 minutes)
+
+**GitHub Settings:**
+
+1. Go to Settings → Pages in this repository
+2. Under "Custom domain", enter: `blog.fuzzwah.com`
+3. Click "Save"
+4. Wait for DNS check to complete
+5. Once verified, check "Enforce HTTPS"
+
+The `CNAME` file in the repository root ensures the custom domain persists through deployments.
 
