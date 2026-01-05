@@ -17,9 +17,11 @@ title: Home
                     </time>
                     {% if post.author %} • {{ post.author }}{% endif %}
                 </p>
-                {% if post.excerpt %}
+                {% assign content_without_h1 = post.content | split: '</h1>' | shift | join: '</h1>' %}
+                {% assign snippet = content_without_h1 | strip_html | normalize_whitespace | strip | truncatewords: 40 %}
+                {% if snippet != '' %}
                 <div class="post-excerpt">
-                    {{ post.excerpt }}
+                    {{ snippet }}
                     <a href="{{ post.url | relative_url }}" class="read-more">Read more &rarr;</a>
                 </div>
                 {% endif %}
