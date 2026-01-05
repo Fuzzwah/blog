@@ -7,7 +7,7 @@ url: "https://blog.fuzzwah.com" # the base hostname & protocol for your site
 # Build settings
 markdown: kramdown
 permalink: /:year/:month/:day/:title/
-future: true  # Show posts with future dates
+timezone: Australia/Sydney  # GMT+10
 
 # Collections
 collections:
