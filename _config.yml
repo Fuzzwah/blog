@@ -20,9 +20,9 @@ sass:
     style: compressed
 
 # Navigation
-navigation:
-    - title: Home
-      url: /index.html
+#navigation:
+#    - title: Home
+#      url: /index.html
 
 # Collections
 collections:
