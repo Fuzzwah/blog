@@ -2,13 +2,13 @@
 title: Adopting GitHub Spec-Kit
 ---
 
-Three weeks ago, I found myself staring at three different "Product Requirements Documents" that were supposed to guide our development work. Each was written in a different style, with different levels of detail, and - most frustratingly - each left critical questions unanswered.
+Three weeks ago, I found myself staring at three different "Product Requirements Documents" that were supposed to guide my development work. Each was written in a different style, with different levels of detail, and - most frustratingly - each left critical questions unanswered.
 
-The first document was essentially a wall of implementation details. It told us *how* to build the feature (database schemas, caching strategies, partitioning approaches) but buried the *why* so deep that our team had three different interpretations of what problem we were actually solving.
+The first document was essentially a wall of implementation details. It told me *how* to build the feature (database schemas, caching strategies, partitioning approaches) but buried the *why* so deep that I had three different interpretations of what problem I was actually solving.
 
 The second was the opposite problem - eight pages of ambitious vision with phrases like "engaging experience" and "viral growth potential" but zero clarity on what constituted a minimum viable product versus nice-to-have features.
 
-The third fell somewhere in between: decent problem statement, but when we asked "how will we know when this is done?" we got crickets.
+The third fell somewhere in between: decent problem statement, but when I asked "how will we know when this is done?" I got crickets.
 
 Sound familiar?
 
@@ -20,11 +20,11 @@ Looking at those three conflicting PRDs, I finally decided to invest the time to
 
 Three things immediately clicked:
 
-1. **Clear separation of concerns**: Specs describe *what* we're building (technology-agnostic requirements), while implementation plans handle *how* (technology-specific solutions)
+1. **Clear separation of concerns**: Specs describe *what* I'm building (technology-agnostic requirements), while implementation plans handle *how* (technology-specific solutions)
 2. **Forced prioritization**: The P1/P2/P3 system for user stories makes you confront what's actually MVP versus nice-to-have
 3. **Measurable success**: Every spec requires concrete success criteria - no more "it works" handwaves
 
-The `/specify` AI command that generates specs from conversation was intriguing, but we decided to start by converting our existing PRDs manually. This would force us to understand the framework deeply.
+The `/specify` AI command that generates specs from conversation was intriguing, but I decided to start by converting my existing PRDs manually. This would force me to understand the framework deeply.
 
 ## The Migration: A Step-by-Step Walkthrough
 
@@ -42,26 +42,24 @@ Writing this down created a reference point for future decisions and helped clar
 
 ### Step 2: Convert the Implementation-Heavy PRD
 
-We tackled our messiest PRD first - the one that was all implementation details with buried requirements.
+I tackled my messiest PRD first - the one that was all implementation details with buried requirements.
 
 **The Process**:
 1. Created the spec directory following Spec Kit conventions
 2. Copied the Spec Kit template
 3. Started with the user stories section
 
-**The Revelation**: Extracting user stories forced us to ask "who benefits from this and how?" We discovered we'd been conflating three distinct user personas with different needs that our original PRD had mushed together.
+**The Revelation**: Extracting user stories forced me to ask "who benefits from this and how?" I discovered I'd been conflating three distinct user personas with different needs that my original PRD had mushed together.
 
-**The Requirements Extraction**: We went through each implementation detail in the PRD and asked "what requirement does this satisfy?" This revealed gaps - we had detailed schemas but hadn't specified critical constraints like data retention periods or performance targets.
+**The Requirements Extraction**: I went through each implementation detail in the PRD and asked "what requirement does this satisfy?" This revealed gaps - I had detailed schemas but hadn't specified critical constraints like data retention periods or performance targets.
 
-We ended up with:
+I ended up with:
 - 4 user stories (prioritized P1-P2)
 - 34 functional requirements organized into logical tiers
 - 17 measurable success criteria (with specific numeric targets)
 - 8 edge cases we hadn't considered
 
-**Time investment**: ~3 hours to convert a 6-page PRD
-
-**Immediate win**: When our engineer asked a clarifying question, we could point to specific success criteria instead of debating intent.
+**Immediate win**: When I returned to implementation later, I could reference specific success criteria instead of trying to remember what I'd meant.
 
 ### Step 3: Convert the Vision-Heavy PRD
 
@@ -74,13 +72,11 @@ The second PRD was all vision, zero specifics. Converting it revealed why projec
 - P2: Important but not blocking MVP  
 - P3: Nice-to-have for future iterations
 
-We cut two-thirds of the original "requirements" to P3. This hurt at first - we really wanted those features! - but it clarified what we could actually deliver in a reasonable timeframe.
+I cut two-thirds of the original "requirements" to P3. This hurt at first - I really wanted those features! - but it clarified what I could actually deliver in a reasonable timeframe.
 
 **Measurable Success Criteria**: The original PRD had vague aspirational language. The spec required specifics with concrete numeric targets for conversion rates, retention metrics, and business outcomes.
 
-Now we'd know if the feature succeeded, and could adjust tactics if metrics lagged.
-
-**Time investment**: ~4 hours (prioritization debates took time)
+Now I'd know if the feature succeeded, and could adjust tactics if metrics lagged.
 
 **Immediate win**: Cut scope by 40% while maintaining the core value proposition
 
@@ -90,41 +86,39 @@ The third PRD had a good problem statement but vague completion criteria.
 
 **The Original Question**: "How will we know when this is done?"
 
-**The Spec Kit Answer**: We defined 16 specific success criteria including detection rates, reliability targets, and time-bound correction windows.
+**The Spec Kit Answer**: I defined 16 specific success criteria including detection rates, reliability targets, and time-bound correction windows.
 
-**Edge Cases**: The template prompted us to think through 12 scenarios we hadn't considered - API failures, edge conditions, data inconsistencies, and timing issues. Each edge case got a documented resolution approach.
+**Edge Cases**: The template prompted me to think through 12 scenarios I hadn't considered - API failures, edge conditions, data inconsistencies, and timing issues. Each edge case got a documented resolution approach.
 
-**Time investment**: ~2.5 hours
-
-**Immediate win**: Engineer started implementation the next day with zero clarification questions
+**Immediate win**: I started implementation the next day with zero unanswered questions
 
 ## The Results
 
 After converting three PRDs to specs over two weeks, here's what changed:
 
 ### Before Spec Kit
-- **Scope creep**: Features ballooned as we discovered "oh we should also..."
-- **Ambiguous completion**: "It works" was our definition of done
+- **Scope creep**: Features ballooned as I discovered "oh I should also..."
+- **Ambiguous completion**: "It works" was my definition of done
 - **Priority confusion**: Everything felt equally important (and equally urgent)
-- **Tech-first thinking**: We designed databases before understanding requirements
+- **Tech-first thinking**: I designed databases before understanding requirements
 
 ### After Spec Kit
-- **Scope clarity**: P1/P2/P3 system creates shared understanding of MVP vs. future
+- **Scope clarity**: P1/P2/P3 system creates clear understanding of MVP vs. future
 - **Measurable success**: Concrete criteria with numeric targets
 - **Independent testability**: Each user story can be validated separately
-- **Requirements-first**: We understand *what* before debating *how*
+- **Requirements-first**: I understand *what* before debating *how*
 
 ### Concrete Improvements
 
-**First Spec**: Identified that we were capturing far more data than needed. Now we know exactly what's essential versus noise, with clear tiering of criticality.
+**First Spec**: Identified that I was capturing far more data than needed. Now I know exactly what's essential versus noise, with clear tiering of criticality.
 
-**Second Spec**: Ruthless prioritization cut scope by 40% while preserving core value. We now have a shippable MVP instead of an aspirational wishlist.
+**Second Spec**: Ruthless prioritization cut scope by 40% while preserving core value. I now have a shippable MVP instead of an aspirational wishlist.
 
-**Third Spec**: 16 measurable success criteria and 12 edge cases documented before writing a line of code. Our engineer started implementation with zero questions.
+**Third Spec**: 16 measurable success criteria and 12 edge cases documented before writing a line of code. I started implementation with zero unanswered questions.
 
 ## Going Forward
 
-Our new workflow:
+My new workflow:
 
 1. **Problem discussion** → rough notes on what I'm trying to solve
 2. **Use `/specify` command** → AI generates initial spec from conversation
@@ -140,38 +134,38 @@ The key shift: **specs are now the source of truth**, not the code or the PRD or
 
 ### 1. Technology-Agnostic Requirements Are Liberating
 
-Our original PRDs specified exact technologies and implementation approaches. The specs say "handle large datasets efficiently" and "respond quickly." This lets engineers propose better solutions if they exist.
+My original PRDs specified exact technologies and implementation approaches. The specs say "handle large datasets efficiently" and "respond quickly." This lets me propose better solutions if they exist.
 
 ### 2. Measurable Success Criteria Eliminate Ambiguity
 
-Changing "improve performance" to "reduce data volume by 90%" gave us a clear target. If we hit 85%, we know we need to do more work. If we hit 95%, we know we exceeded the requirement.
+Changing "improve performance" to "reduce data volume by 90%" gave me a clear target. If I hit 85%, I know I need to do more work. If I hit 95%, I know I exceeded the requirement.
 
 ### 3. Prioritization Forces Hard Choices
 
-The P1/P2/P3 system made us confront reality: we can't build everything immediately. This eliminated scope creep and made planning realistic.
+The P1/P2/P3 system made me confront reality: I can't build everything immediately. This eliminated scope creep and made planning realistic.
 
 ### 4. Edge Cases Prevent Rework
 
-Documenting edge cases upfront (like "what if external dependency is unavailable?") meant we designed resilient systems from the start instead of patching failures in production.
+Documenting edge cases upfront (like "what if external dependency is unavailable?") meant I designed resilient systems from the start instead of patching failures in production.
 
 ### 5. Manual Conversion Builds Understanding
 
-We could have used `/specify` to generate specs from our PRDs, but manually converting the first three taught us *why* each section matters. Now when we use the AI tool, we know what to look for in the output.
+I could have used `/specify` to generate specs from my PRDs, but manually converting the first three taught me *why* each section matters. Now when I use the AI tool, I know what to look for in the output.
 
 ## What's Next
 
-We have more PRDs waiting to be converted. But more importantly, we're writing new specs directly instead of starting with PRDs:
+I have more PRDs waiting to be converted. But more importantly, I'm writing new specs directly instead of starting with PRDs:
 
-- Using `/specify` to generate initial specs from team discussions
+- Using `/specify` to generate initial specs from my planning sessions
 - Refining them through the quality checklist
 - Using `/speckit.plan` to generate implementation plans when ready to build
 
-The framework gives us a shared language for talking about what we're building. When someone proposes a feature, we ask:
+The framework gives me a structured way to think about what I'm building. When I consider a new feature, I ask:
 - "What's the user story?"
-- "How will we measure success?"  
+- "How will I measure success?"  
 - "Is this P1, P2, or P3?"
 
-That's the real win - not just better documentation, but better thinking about what we're building and why.
+That's the real win - not just better documentation, but better thinking about what I'm building and why.
 
 ---
 
