@@ -1,0 +1,18 @@
+name: Scheduled Jekyll Build
+
+on:
+  schedule:
+    # Run at 00:30 UTC daily (10:30 AM Sydney time)
+    - cron: '30 0 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger GitHub Pages rebuild
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/pages/builds
