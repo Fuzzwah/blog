@@ -1,5 +1,6 @@
 ---
 title: Adopting GitHub Spec-Kit
+date: 2026-01-08
 ---
 
 Three weeks ago, I found myself staring at three different "Product Requirements Documents" that were supposed to guide my development work. Each was written in a different style, with different levels of detail, and - most frustratingly - each left critical questions unanswered.
