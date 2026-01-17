@@ -1,6 +1,8 @@
 ---
 title: Adopting GitHub Spec-Kit
-date: 2026-01-08
+date: 2026-01-08 10:00:00 +1100
+author: Fuzzwah
+description: Converting messy PRDs to GitHub Spec-Kit specs—how forcing measurable success criteria, ruthless prioritization, and technology-agnostic requirements cut scope by 40% while eliminating ambiguity.
 ---
 
 Three weeks ago, I found myself staring at three different "Product Requirements Documents" that were supposed to guide my development work. Each was written in a different style, with different levels of detail, and - most frustratingly - each left critical questions unanswered.

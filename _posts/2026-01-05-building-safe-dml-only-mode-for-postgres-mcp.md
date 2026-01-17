@@ -1,8 +1,9 @@
 ---
 title: Building Safe DML Only Mode For Postgres MCP
+date: 2026-01-05 10:00:00 +1100
+author: Fuzzwah
+description: How I built a new access mode for postgres-mcp that allows data manipulation while blocking schema changes—preventing AI agents from bypassing Django migrations and breaking your database.
 ---
-
-## The Problem: A Missing Middle Ground
 
 When I started working with [postgres-mcp](https://github.com/crystaldba/postgres-mcp), I quickly realized there was a gap in the access control system. The server offered two modes:
 

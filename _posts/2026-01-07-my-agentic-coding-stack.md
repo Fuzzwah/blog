@@ -1,8 +1,9 @@
 ---
 title: My Agentic Coding Stack
+date: 2026-01-07 10:00:00 +1100
+author: Fuzzwah
+description: My complete agentic coding setup—VS Code Insiders, GitHub Copilot, Claude Sonnet 4.5, MCP servers, and the planning → PRD → implementation workflow that improved code quality while reducing development time by 40%.
 ---
-
-## Building with AI: My Current Setup
 
 After months of experimenting with AI-assisted development, I've settled on a stack that maximizes productivity while maintaining control and understanding of my code. Here's what I'm running and why each piece matters.
 

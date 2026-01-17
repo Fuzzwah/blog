@@ -1,8 +1,9 @@
 ---
 title: STDIO vs HTTP MCP Servers in VS Code
+date: 2026-01-06 10:00:00 +1100
+author: Fuzzwah
+description: A deep dive into choosing between STDIO and HTTP transports for MCP servers—when automatic startup beats centralized services, and why STDIO should be your default choice.
 ---
-
-## The Two Paths to MCP Integration
 
 When building a Model Context Protocol (MCP) server for VS Code, one of your first architectural decisions is choosing the transport mechanism: **STDIO** or **HTTP**. Each has distinct advantages and trade-offs that affect deployment, security, and user experience.
 
