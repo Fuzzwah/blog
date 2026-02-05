@@ -6,8 +6,6 @@ author: Fuzzwah
 description: A practical comparison of agentic coding tools—VS Code with Copilot Chat, VS Code with Claude Code extension, and CLI-based Claude Code—and when to use each one.
 ---
 
-# Choosing Your Agentic Coding Workflow: VS Code vs Claude Code CLI
-
 After months of experimenting with different agentic coding approaches, I've developed strong opinions about when to use each tool in my workflow. The landscape has evolved rapidly, and we now have several compelling options: VS Code with GitHub Copilot Chat, VS Code with the Claude Code extension, and the CLI-based Claude Code. Each has its strengths, and choosing the right one depends heavily on your context.
 
 ## The Contenders
