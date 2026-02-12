@@ -2,79 +2,38 @@
 title: My Agentic Coding Stack
 date: 2026-01-07 10:00:00 +1100
 author: Fuzzwah
-description: My complete agentic coding setup—VS Code Insiders, GitHub Copilot, Claude Sonnet 4.5, MCP servers, and the planning → PRD → implementation workflow that improved code quality while reducing development time by 40%.
+description: A run through of my agentic coding setup and the workflow that's changed how I build things.
 ---
 
-After months of experimenting with AI-assisted development, I've settled on a stack that maximizes productivity while maintaining control and understanding of my code. Here's what I'm running and why each piece matters.
+I've been messing around with AI-assisted development for months now, and after a frankly embarrassing amount of tinkering I've landed on a setup that actually works. I can already feel your eyes preparing to glaze over, but stick with me — this stuff is genuinely exciting and has completely changed how I build things.
 
 ## The Foundation: VS Code Insiders
 
-**Why Insiders?** I run [VS Code Insiders](https://code.visualstudio.com/insiders/) rather than the stable release because:
+I run [VS Code Insiders](https://code.visualstudio.com/insiders/) rather than the stable release because:
 
-- **Early access to features**: MCP (Model Context Protocol) support and Copilot improvements land here first
-- **Bleeding edge stability**: It's surprisingly stable for a daily build
-- **Side-by-side installation**: I can keep stable VS Code for critical work if needed
+- MCP support and Copilot improvements land here first
+- It's surprisingly stable for a daily build
+- I can keep stable VS Code installed side-by-side for critical work if needed
 
-The only downside is occasional breaking changes, but for agentic coding development, being on the cutting edge is worth it.
+The only real downside is the occasional breaking change, but for agentic coding development being on the bleeding edge is worth it.
 
 ## The Brain: GitHub Copilot
 
-### Copilot Chat Extension
+The [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) extension is the core of my agentic workflow. I'm using inline chat (`Cmd+I`) constantly for quick refactoring without leaving the editor, the chat panel for longer conversations about architecture, and `@workspace` to search and reference my entire codebase so answers are grounded in my actual code rather than generic examples.
 
-The [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) extension is the core of my agentic workflow. Key features I use daily:
+On top of that, the original [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) extension handles inline code completions — function implementations from comments, test generation, boilerplate reduction, pattern continuation. All the stuff that makes you wonder how you ever typed all that crap by hand.
 
-**1. Inline Chat (`Cmd+I`)**
-- Quick refactoring and modifications without leaving the editor
-- "Extract this to a function"
-- "Add error handling here"
-- "Make this async"
+## Model Selection
 
-**2. Chat Panel**
-- Longer conversations about architecture
-- Explaining complex code
-- Planning multi-step implementations
+Not all AI models are created equal, and I've found specific models shine at specific tasks.
 
-**3. Workspace Context**
-- `@workspace` to search and reference my entire codebase
-- Answers grounded in my actual code, not generic examples
+**Claude Sonnet 4.5** is my primary choice for feature implementation, especially when using custom agents. The reasoning is superb — it handles complex requirements and edge cases, maintains coherent context across long conversations, and generates code that's actually maintainable and idiomatic. I've configured Copilot to use it as my default for development work and I'm pretty damn chuffed with the results.
 
-### GitHub Copilot (Code Completions)
+For **code review tasks** I switch over to **GPT-5.2**. It's faster for review comments, excellent at spotting common bugs and anti-patterns, and has a strong eye for security vulnerabilities. This two-model approach gives me the best of both worlds.
 
-The original [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) extension for inline suggestions:
-- Function implementations from comments
-- Test case generation
-- Boilerplate reduction
-- Pattern continuation
+## The Planning → PRD → Implementation Workflow
 
-## Model Selection Strategy
-
-Not all AI models are created equal, and I've found specific models excel at specific tasks:
-
-### Claude Sonnet 4.5 for Development
-
-**My primary choice for feature implementation** is Claude Sonnet 4.5, especially when using custom agents. Why?
-
-- **Superior reasoning**: Better at understanding complex requirements and edge cases
-- **Context retention**: Maintains coherent understanding across long conversations
-- **Code quality**: Generates more maintainable, idiomatic code
-- **Planning capabilities**: Excellent at breaking down features into logical steps
-
-I configure Copilot to use Claude Sonnet 4.5 as my default model for development work.
-
-### GPT-5.2 for Code Review
-
-For **code review tasks**, I switch to GPT-5.2:
-
-- **Pattern recognition**: Excellent at spotting common bugs and anti-patterns
-- **Speed**: Faster responses for review comments
-- **Security focus**: Strong at identifying security vulnerabilities
-- **Best practices**: Well-trained on conventional wisdom and standards
-
-This two-model approach ensures I get the best of both worlds.
-
-### The Planning → PRD → Implementation Workflow
-
-My most successful pattern for complex features:
+This is the bit I'm most excited to share because it's genuinely changed the game for me. Here's how it works for complex features:
 
 **1. Planning Mode Session**
 
@@ -88,114 +47,53 @@ Requirements:
 - Admin can revoke access
 ```
 
-**2. Generate PRD**
+**2. Generate a PRD**
 
-I ask the agent: "Create a comprehensive PRD for this feature, including:
+I ask the agent to create a comprehensive PRD covering:
 - User stories
 - Technical approach
 - Database schema changes
 - API endpoints
 - Security considerations
-- Testing strategy"
+- Testing strategy
 
 The agent produces a detailed document using all available context.
 
 **3. Review and Edit**
 
-This is critical: **I review every line of the PRD**. I:
-- Clarify ambiguous requirements
-- Add constraints the AI might have missed
-- Remove over-engineered solutions
-- Ensure alignment with existing architecture
-
-I often spend 30-60 minutes refining the PRD. This time is worth it.
+This is the critical bit: **I review every line of the PRD**. I clarify ambiguous requirements, add constraints the AI might have missed, remove over-engineered solutions, and make sure it all aligns with existing architecture. I often spend 30 to 60 minutes refining the PRD. This time is absolutely worth it.
 
 **4. Fresh Session for Implementation**
 
-Here's the key insight: **Start a completely new chat session**.
-
-Why fresh?
-- No baggage from exploratory conversations
-- Clean context focused on execution
-- Agent has one clear source of truth: the PRD
-- Reduces hallucinations from earlier discussions
-
-I paste the finalized PRD and say: "Implement this PRD. Ask clarifying questions before you start."
+Here's the key insight that took me too long to figure out: **start a completely new chat session**. No baggage from exploratory conversations, clean context focused on execution, and the agent has one clear source of truth — the PRD. I paste the finalised PRD and say: "Implement this PRD. Ask clarifying questions before you start."
 
 **5. Iterative Implementation**
 
-The agent implements step-by-step:
-- Database migrations
-- Models and business logic
-- API endpoints
-- Tests
-- Documentation
-
-Because the PRD is solid, the implementation is remarkably smooth.
+The agent implements step by step — database migrations, models and business logic, API endpoints, tests, documentation. Because the PRD is solid, the implementation is remarkably smooth.
 
 ### Why This Works
 
-**Separation of concerns**: Planning brain ≠ implementation brain
+The core idea is separation of concerns — planning brain and implementation brain are different things. Separating them means explicit requirements with no "I thought you meant..." moments, reviewable artefacts that become documentation for the team, and human review at the critical juncture. A fresh session means a focused agent.
 
-**Explicit requirements**: No "I thought you meant..." moments
-
-**Reviewable artifacts**: PRD becomes documentation for the team
-
-**Quality control**: Human review at the critical juncture
-
-**Context efficiency**: Fresh session = focused agent
-
-This workflow has reduced my feature development time by 40% while *improving* code quality.
+This workflow has reduced my feature development time by roughly 40% while actually *improving* code quality. I can happily report back that I'm a total convert.
 
 ## Essential Extensions
 
-These extensions enhance the AI-assisted workflow:
+A few extensions that really make the AI-assisted workflow sing:
 
-### Code Quality
+- **[ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)** — Copilot's suggestions aren't always lint-clean, so real-time feedback and auto-fix on save keeps things tidy
+- **[Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)** — consistent formatting without thinking about it, works seamlessly with generated code
+- **[GitLens](https://marketplace.visualstudio.com/items?itemName=eamodio.gitlens)** — shows when and why code was changed, essential context when asking Copilot about existing code
+- **[Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)** + **[Pylance](https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance)** — IntelliSense, debugging, and type checking that catches issues Copilot might miss
 
-**[ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)**
-- Copilot's suggestions aren't always lint-clean
-- Real-time feedback keeps code quality high
-- Auto-fix on save for common issues
+## MCP Servers
 
-**[Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)**
-- Consistent formatting without thinking about it
-- Works seamlessly with Copilot's generated code
-- Format on save keeps everything clean
-
-### Git Integration
-
-**[GitLens](https://marketplace.visualstudio.com/items?itemName=eamodio.gitlens)**
-- Understand when and why code was changed
-- Essential context when asking Copilot about existing code
-- Blame annotations help identify who to ask for clarification
-
-### Language-Specific
-
-**[Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)**
-- IntelliSense for Python
-- Debugging
-- Environment management
-
-**[Pylance](https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance)**
-- Fast, feature-rich Python language server
-- Type checking that catches issues Copilot might miss
-- Better completions and suggestions
-
-## Model Context Protocol (MCP) Servers
-
-MCP is game-changing for giving AI context beyond my codebase. Here are the servers I run:
+MCP is a game changer for giving AI context beyond your codebase. Here are the servers I'm running.
 
 ### [postgres-mcp](https://github.com/crystaldba/postgres-mcp)
 
-**Why?** Direct database access for the AI agent.
+Direct database access for the AI agent. I can ask things like "show me all users created in the last week" or "what's the schema for the orders table" and it just works.
 
-**Use cases:**
-- "Show me all users created in the last week"
-- "What's the schema for the orders table?"
-- "Write a query to find duplicate emails"
-
-**Setup:**
 ```json
 {
   "mcp.servers": {
@@ -213,18 +111,12 @@ MCP is game-changing for giving AI context beyond my codebase. Here are the serv
 }
 ```
 
-I use `dml_only` mode to prevent accidental schema changes (see my [DML Only Mode post](2026-01-05-building-safe-dml-only-mode-for-postgres-mcp.md)).
+I run it in `dml_only` mode to prevent accidental schema changes — I wrote about building that safety net in my [DML Only Mode post](2026-01-05-building-safe-dml-only-mode-for-postgres-mcp.md).
 
 ### [filesystem-mcp](https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem)
 
-**Why?** Read/write files outside the current workspace.
+Lets the agent read and write files outside the current workspace — processing log files, reading config from other projects, generating files in specific directories. Dead useful.
 
-**Use cases:**
-- Processing log files
-- Reading config from other projects
-- Generating files in specific directories
-
-**Setup:**
 ```json
 {
   "mcp.servers": {
@@ -242,14 +134,8 @@ I use `dml_only` mode to prevent accidental schema changes (see my [DML Only Mod
 
 ### [github-mcp](https://github.com/modelcontextprotocol/servers/tree/main/src/github)
 
-**Why?** Search repos, read issues, create PRs without leaving the chat.
+Search repos, read issues, create PRs without leaving the chat. The less context switching, the better.
 
-**Use cases:**
-- "Show me recent issues labeled 'bug'"
-- "Create a PR with these changes"
-- "Search for examples of authentication in our org's repos"
-
-**Setup:**
 ```json
 {
   "mcp.servers": {
@@ -267,65 +153,15 @@ I use `dml_only` mode to prevent accidental schema changes (see my [DML Only Mod
 }
 ```
 
-## Workflow in Practice
+## What I've Learnt
 
-Here's how these pieces work together:
+After living with this stack for a while, a few things have become clear:
 
-### Example: Adding a Feature
+1. **MCP is a multiplier** — the more context you give AI, the better it performs
+2. **STDIO beats HTTP for MCP** — auto-start means zero friction (more on that in my [STDIO vs HTTP post](2026-01-06-stdio-vs-http-mcp-servers-in-vscode.md))
+3. **Quality tools matter** — ESLint + Prettier keep AI-generated code maintainable
+4. **Limit scope wisely** — DML-only postgres, restricted filesystem paths. Let the agent do its thing without worrying it's going to nuke your database
+5. **Right model for the right task** — Claude for development, GPT for review
+6. **Separate planning from implementation** — the PRD workflow with fresh sessions is the single biggest productivity unlock I've found
 
-1. **Planning**: Chat with Copilot about architecture
-   - "How should I implement user preferences in this Django app?"
-   - Uses `@workspace` to understand current structure
-
-2. **Database Design**: Use postgres-mcp
-   - "What migrations do I need for a user_preferences table?"
-   - Agent inspects current schema via MCP
-
-3. **Implementation**: Inline suggestions + chat
-   - Copilot suggests model code
-   - Pylance catches type errors
-   - ESLint enforces style
-
-4. **Testing**: Copilot generates tests
-   - "Write tests for the preference save logic"
-   - Runs tests to verify
-
-5. **Documentation**: github-mcp for PR
-   - "Create a PR with summary and link to issue #123"
-   - Automatically formats and submits
-
-### Example: Debugging
-
-1. **Understand the issue**
-   - GitLens shows when the bug was introduced
-   - `@workspace` finds related code
-
-2. **Investigate data**
-   - postgres-mcp queries production data (read-only!)
-   - "Show me the last 10 failed transactions"
-
-3. **Fix and verify**
-   - Copilot suggests fix based on context
-   - ESLint ensures code quality
-   - Write regression test
-
-## Key Learnings
-
-1. **MCP is a multiplier**: The more context you give AI, the better it performs
-2. **STDIO > HTTP for MCP**: Auto-start means zero friction (see my [STDIO vs HTTP post](2026-01-06-stdio-vs-http-mcp-servers-in-vscode.md))
-3. **Quality tools matter**: ESLint + Prettier keep AI-generated code maintainable
-4. **Limit scope wisely**: DML-only postgres, restricted filesystem paths—safety first
-5. **Right model for right task**: Claude for development, GPT for review
-6. **Planning mode + PRD workflow**: Separate thinking from doing for better results
-7. **Fresh sessions are powerful**: Clean slate prevents context pollution
-
-## What's Next?
-
-I'm exploring:
-- Custom MCP servers for internal tools
-- Better prompt engineering for complex refactorings
-- Integration with CI/CD for automated fixes
-
----
-
-*Agentic coding isn't about replacing developers—it's about amplifying what we can do. The right stack makes that amplification seamless.*
+I'm currently exploring custom MCP servers for internal tools, better prompt engineering for complex refactorings, and integration with CI/CD for automated fixes. Stay tuned.
