@@ -3,6 +3,10 @@ title: Adopting GitHub Spec-Kit
 date: 2026-01-08 10:00:00 +1100
 author: Fuzzwah
 description: How converting my messy PRDs to GitHub Spec-Kit specs cleaned up my requirements game.
+update_notice:
+  message: "I've since switched from Spec-Kit to OpenSpec."
+  url: /2026/02/06/switching-from-speckit-to-openspec/
+  link_text: "Read about why I switched"
 ---
 
 Three weeks ago I found myself staring at three different "Product Requirements Documents" that were supposed to guide my development work. Each one written in a different style, with different levels of detail, and — most frustratingly — each left critical questions unanswered.

@@ -3,6 +3,10 @@ title: My Agentic Coding Stack
 date: 2026-01-07 10:00:00 +1100
 author: Fuzzwah
 description: A run through of my agentic coding setup and the workflow that's changed how I build things.
+update_notice:
+  message: "My workflow has evolved since this post. The core tools are still solid, but how I use them has changed."
+  url: /2026/01/17/choosing-your-agentic-coding-workflow/
+  link_text: "See my updated workflow"
 ---
 
 I've been messing around with AI-assisted development for months now, and after a frankly embarrassing amount of tinkering I've landed on a setup that actually works. I can already feel your eyes preparing to glaze over, but stick with me — this stuff is genuinely exciting and has completely changed how I build things.

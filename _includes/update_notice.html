@@ -1,0 +1,6 @@
+{%- if page.update_notice -%}
+<div class="update-notice">
+  <p><strong>Heads up:</strong> {{ page.update_notice.message }}
+  <a href="{{ page.update_notice.url | relative_url }}">{{ page.update_notice.link_text }} &rarr;</a></p>
+</div>
+{%- endif -%}

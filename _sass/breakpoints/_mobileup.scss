@@ -519,4 +519,10 @@ DARK THEME STYLING
 	.footer .container {
 		border-top-color: lighten(black, 10%);
 	}
+
+	.post .update-notice {
+		background: rgba($info-color, 0.15);
+		border-color: rgba($info-color, 0.3);
+		border-left-color: $info-color;
+	}
 }
