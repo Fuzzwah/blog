@@ -2,20 +2,16 @@
 title: STDIO vs HTTP MCP Servers in VS Code
 date: 2026-01-06 10:00:00 +1100
 author: Fuzzwah
-description: A deep dive into choosing between STDIO and HTTP transports for MCP servers—when automatic startup beats centralized services, and why STDIO should be your default choice.
+description: Why STDIO should be your default for MCP servers, and when HTTP actually makes sense.
 ---
 
-When building a Model Context Protocol (MCP) server for VS Code, one of your first architectural decisions is choosing the transport mechanism: **STDIO** or **HTTP**. Each has distinct advantages and trade-offs that affect deployment, security, and user experience.
-
-Let me share what I've learned building and deploying both types of MCP servers.
+I've spent way too long messing around with MCP servers at this point, and one of the first decisions you hit when building or choosing one is the transport: STDIO or HTTP. Sounds like a boring infrastructure detail, right? Turns out it fundamentally changes how people actually use your server. Let me share what I've learnt building and deploying both.
 
 ## STDIO Servers: The Automatic Advantage
 
-### The Core Benefit: Zero-Touch Startup ✨
+The killer feature of STDIO MCP servers is dead simple: **VS Code automatically starts them for you.**
 
-The killer feature of STDIO MCP servers is elegantly simple: **VS Code automatically starts them for you.**
-
-When a user installs your MCP server and adds it to their `settings.json`:
+When a user adds your server to their `settings.json`:
 
 ```json
 {
@@ -28,46 +24,11 @@ When a user installs your MCP server and adds it to their `settings.json`:
 }
 ```
 
-That's it. VS Code handles:
-- Starting the process when needed
-- Restarting it if it crashes
-- Shutting it down cleanly
-- Managing the lifecycle completely
+That's it. VS Code handles starting the process when needed, restarting it if it crashes, shutting it down cleanly, and managing the whole lifecycle. Users don't run separate commands, manage background processes, or sit there wondering "is my server actually running?" It just works.
 
-Users don't run separate commands, manage background processes, or worry about "is my server running?"
+Beyond the auto-start magic, STDIO has a bunch of practical wins. Deployment is simpler — `npm install -g my-mcp-server`, add it to your settings, done. No ports to configure, no firewall rules, no network interfaces to bind. Each server runs as a separate process with its own environment variables, working directory, and resource limits, so you get proper isolation for free.
 
-### Additional STDIO Advantages
-
-**1. Simpler Deployment**
-```bash
-# User installation
-npm install -g my-mcp-server
-
-# Configuration
-# Just add to settings.json - done!
-```
-
-No ports to configure, no firewall rules, no network interfaces to bind.
-
-**2. Better Isolation**
-
-Each STDIO server runs as a separate process with its own:
-- Environment variables
-- Working directory
-- Process isolation
-- Resource limits
-
-**3. Native Integration**
-
-VS Code's MCP implementation is optimized for STDIO:
-- Built-in process management
-- Automatic logging capture
-- Native error handling
-- Standardized configuration
-
-**4. No Port Conflicts**
-
-Since there's no network binding, you can run multiple MCP servers without worrying about port collisions:
+VS Code's MCP implementation is also optimised for STDIO with built-in process management, automatic logging capture, and native error handling. And since there's no network binding, you can run as many MCP servers as you want without worrying about port collisions:
 
 ```json
 {
@@ -81,18 +42,12 @@ Since there's no network binding, you can run multiple MCP servers without worry
 
 All running simultaneously, zero configuration overhead.
 
-### STDIO Disadvantages
+### The Downsides
 
-**1. Local Only**
+STDIO isn't perfect though. The big one is it's local only — the server has to run on the same machine as VS Code. You can't share an MCP server across a team, run resource-intensive servers on remote hardware, or connect to centralised company resources.
 
-STDIO servers must run on the same machine as VS Code. You can't:
-- Share an MCP server across a team
-- Run resource-intensive servers on remote hardware
-- Connect to centralized company resources
+As the server developer, you also need to be careful with your I/O:
 
-**2. Process Management Complexity**
-
-As the server developer, you need to handle:
 ```typescript
 // Reading from stdin
 process.stdin.on('data', handleMessage);
@@ -104,16 +59,10 @@ process.stdout.write(JSON.stringify(response));
 console.error('Debug info goes to stderr');
 ```
 
-Mixing stdout with debug output will break the protocol.
+Mixing stdout with debug output will break the protocol. I learnt that one the fun way.
 
-**3. Harder Testing**
+Testing is a bit more fiddly too. STDIO testing requires process spawning, pipe management, and parsing JSON-RPC over streams. Compare that to HTTP where you can just `curl` your endpoint and call it a day:
 
-Testing STDIO servers requires:
-- Process spawning in tests
-- Pipe management
-- Parsing JSON-RPC over streams
-
-Compare to HTTP testing:
 ```typescript
 // HTTP testing
 const response = await fetch('http://localhost:3000/api');
@@ -126,15 +75,11 @@ const output = await readFromStream(child.stdout);
 // Parse JSON-RPC envelope...
 ```
 
-**4. No Load Balancing**
-
-Each VS Code instance gets its own server process. If 100 developers use your MCP server, that's 100 separate processes doing duplicate work—each connecting to the same database, caching the same data, etc.
+And there's no load balancing — each VS Code instance gets its own server process. If 100 developers use your MCP server, that's 100 separate processes doing duplicate work, each connecting to the same database, caching the same data, and so on.
 
 ## HTTP Servers: Network Flexibility
 
-### The Core Benefit: Centralized Services 🌐
-
-HTTP MCP servers enable shared, centralized resources:
+Where HTTP shines is centralised, shared resources:
 
 ```json
 {
@@ -147,21 +92,10 @@ HTTP MCP servers enable shared, centralized resources:
 }
 ```
 
-Now your entire engineering team connects to one managed instance.
+Now your entire engineering team connects to one managed instance. That's pretty powerful for the right use case.
 
-### Additional HTTP Advantages
+HTTP also opens up remote resources — cloud-hosted MCP servers, on-premise data centres, GPU-enabled machines for AI workloads, dedicated database servers. One HTTP server can serve hundreds of clients with shared connection pools, caching, and resource limits:
 
-**1. Remote Resources**
-
-Connect to servers running anywhere:
-- Cloud-hosted MCP servers
-- On-premise data centers
-- GPU-enabled machines for AI workloads
-- Dedicated database servers
-
-**2. Better Resource Management**
-
-One HTTP server can serve hundreds of clients:
 ```
       ┌─────────┐
       │ MCP     │
@@ -175,36 +109,17 @@ One HTTP server can serve hundreds of clients:
 └───────┘   └───────┘   └───────┘
 ```
 
-Shared connection pools, caching, and resource limits.
+Development and testing is easier with standard HTTP tooling — `curl`, browser dev tools, load testing tools, all the stuff you already know:
 
-**3. Easier Development & Testing**
-
-Standard HTTP tooling works out of the box:
 ```bash
 # Test with curl
 curl http://localhost:3000/api \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc": "2.0", "method": "..."}'
-
-# Use browser dev tools
-# Standard load testing tools
-# Familiar debugging
 ```
 
-**4. Authentication & Authorization**
+You also get proper enterprise security options — OAuth integration, API key management, rate limiting per user, audit logging, role-based access control. And you can deploy behind standard load balancing infrastructure:
 
-HTTP enables enterprise-grade security:
-```typescript
-// OAuth integration
-// API key management
-// Rate limiting per user
-// Audit logging
-// Role-based access control
-```
-
-**5. Load Balancing & Scaling**
-
-Deploy behind standard infrastructure:
 ```
 ┌─────────┐
 │  Load   │
@@ -219,11 +134,9 @@ Deploy behind standard infrastructure:
 └────┘└────┘└────┘  └────┘
 ```
 
-### HTTP Disadvantages
+### The HTTP Downsides
 
-**1. Manual Startup Required** ⚠️
-
-This is the critical drawback. Users must:
+The critical drawback is manual startup. Users have to actually remember to start the server:
 
 ```bash
 # Terminal 1: Start the server
@@ -234,84 +147,37 @@ npm start mcp-server
 # Configure settings.json to point to localhost:3000
 ```
 
-Every time they restart their machine, they need to remember to start the server again. This creates friction:
-- Forgotten server startups
-- "Why isn't my MCP working?" support tickets
-- Manual process management
-- Extra cognitive load
+Every time they restart their machine, they need to remember to fire it up again. This creates real friction — forgotten server startups, "why isn't my MCP working?" support tickets, and just general extra cognitive load that nobody wants.
 
-**2. Port Management**
+On top of that, you've got port management (choosing available ports, avoiding conflicts, handling "address already in use" errors), more complex network configuration compared to STDIO's simple command + args, and security considerations. Even on localhost, you're exposing a network service, which means you need to think about authentication, TLS for remote servers, token management, and attack surface.
 
-Users need to:
-- Choose available ports
-- Avoid conflicts with other services
-- Configure firewalls
-- Handle "address already in use" errors
+## When to Use Which
 
-**3. Network Configuration**
+I reckon the decision comes down to your deployment model more than any technical preference.
 
-More complex setup:
-```json
-{
-  "mcp.servers": {
-    "my-server": {
-      "url": "http://localhost:3000",
-      "headers": {
-        "Authorization": "Bearer ${env:API_KEY}"
-      },
-      "timeout": 30000
-    }
-  }
-}
-```
+**Go with STDIO when you're:**
 
-vs STDIO's simple command + args.
+- Building for individual developer use
+- Running the server on the same machine as VS Code
+- After a zero-configuration user experience
+- Each user should have an isolated server instance
+- No shared state between users is needed
 
-**4. Security Considerations**
+Think local file system tools, personal productivity helpers, single-user database access, git integration, local code analysis. Basically most MCP servers.
 
-Even on localhost, you're exposing a network service:
-- Need authentication for any sensitive data
-- TLS configuration for remote servers
-- Token management
-- Attack surface considerations
+**Go with HTTP when you need:**
 
-## Decision Matrix
+- Shared or centralised resources across a team
+- The server running on different hardware than VS Code
+- Multiple users sharing one instance
+- Enterprise authentication and authorisation
+- Horizontal scaling
 
-### Choose STDIO When:
-
-✅ Building for individual developer use  
-✅ Server runs on the same machine as VS Code  
-✅ Want zero-configuration user experience  
-✅ Each user should have isolated server instance  
-✅ No shared state between users needed  
-✅ Prioritizing ease of installation  
-
-**Example use cases:**
-- Local file system tools
-- Personal productivity helpers
-- Single-user database access
-- Git integration
-- Local code analysis
-
-### Choose HTTP When:
-
-✅ Need shared/centralized resources  
-✅ Server runs on different hardware than VS Code  
-✅ Multiple users should share one instance  
-✅ Need enterprise authentication/authorization  
-✅ Want to scale horizontally  
-✅ Connecting to existing HTTP APIs  
-
-**Example use cases:**
-- Company-wide database access
-- Shared API integrations (GitHub, Jira, etc.)
-- Resource-intensive operations (ML models, etc.)
-- Multi-tenant services
-- Cloud-hosted tools
+Think company-wide database access, shared API integrations, resource-intensive operations like ML models, multi-tenant services, cloud-hosted tools.
 
 ## The Hybrid Approach
 
-Some MCP servers offer both transports:
+Some MCP servers offer both transports, which is worth knowing about:
 
 ```typescript
 // server.ts
@@ -332,59 +198,12 @@ mcp-server --transport stdio
 mcp-server --transport http --port 3000
 ```
 
-This gives maximum flexibility, but doubles your testing surface and maintenance burden.
+This gives maximum flexibility, but doubles your testing surface and maintenance burden. I'd only go down this path if you've got users actively asking for it.
 
-## Real-World Example: postgres-mcp
+## My Take
 
-The [postgres-mcp](https://github.com/crystaldba/postgres-mcp) server defaults to STDIO because:
+**Start with STDIO.** The automatic startup is transformative for adoption — it's the difference between "install and go" and "install, configure, remember to start, then go." It's simpler to build, easier to secure since there's no network exposure, and the reality is most MCP servers are personal tools anyway.
 
-1. **Database connections are local or tunneled anyway**
-   - Users SSH tunnel to remote databases
-   - Connection strings contain sensitive credentials
-   - Each developer needs different database access
+Only move to HTTP when you've got specific needs: shared resources across teams, remote server requirements, resource pooling, or enterprise auth. And if you do end up needing both, start with STDIO to validate your server, then add HTTP support once people are actually asking for it.
 
-2. **Auto-start is critical for UX**
-   - Developers open VS Code and immediately start working
-   - No "forgot to start my MCP server" delays
-   - Server lifecycle matches VS Code lifecycle
-
-3. **Isolation is a feature**
-   - Each developer's queries don't impact others
-   - Personal query history
-   - Individual access mode settings (read-only, DML-only, unrestricted)
-
-But an HTTP version could make sense for:
-- Shared development databases
-- Query logging/auditing across a team
-- Centralized connection pool management
-
-## My Recommendation
-
-**Start with STDIO.** Here's why:
-
-1. **User experience wins**: The automatic startup is transformative for adoption
-2. **Simpler to build**: Less infrastructure code, fewer edge cases
-3. **Easier to secure**: No network exposure to worry about
-4. **Better defaults**: Most MCP servers are personal tools
-
-Only move to HTTP when you have specific needs:
-- Shared resources across teams
-- Remote server requirements
-- Resource pooling needs
-- Enterprise authentication requirements
-
-And if you do need both, start with STDIO to validate your MCP server, then add HTTP support once you have users asking for it.
-
-## Key Takeaways
-
-1. **STDIO's auto-start is a killer feature** that dramatically improves user experience
-2. **HTTP enables centralized, shared resources** but at the cost of manual startup
-3. **Choose based on deployment model**, not just technical preferences
-4. **Most MCP servers should default to STDIO** unless they have specific centralized requirements
-5. **Supporting both is possible** but doubles complexity—only do it if needed
-
-The transport mechanism isn't just a technical detail—it fundamentally shapes how users interact with your MCP server. Choose wisely based on your users' workflows, not just what's easier to code.
-
----
-
-*Building MCP servers? The choice between STDIO and HTTP affects everything from user onboarding to scaling strategy. Start simple, evolve when needed.*
+The transport mechanism isn't just a technical detail — it fundamentally shapes how users interact with your MCP server. I reckon getting this choice right early saves you a world of pain down the track. Stay tuned for more MCP adventures as I keep tinkering with this stuff.

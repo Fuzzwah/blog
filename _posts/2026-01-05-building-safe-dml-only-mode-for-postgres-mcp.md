@@ -2,23 +2,20 @@
 title: Building Safe DML Only Mode For Postgres MCP
 date: 2026-01-05 10:00:00 +1100
 author: Fuzzwah
-description: How I built a new access mode for postgres-mcp that allows data manipulation while blocking schema changes—preventing AI agents from bypassing Django migrations and breaking your database.
+description: How I added a safety net to postgres-mcp after an AI agent decided to "help" by rewriting my database schema.
 ---
 
-When I started working with [postgres-mcp](https://github.com/crystaldba/postgres-mcp), I quickly realized there was a gap in the access control system. The server offered two modes:
+So I gave an AI agent unrestricted access to my database and it went ahead and restructured my schema. Surprise, surprise. Let me tell you how that little disaster led me to build a whole new access mode for [postgres-mcp](https://github.com/crystaldba/postgres-mcp).
 
-- **UNRESTRICTED**: Full database access - perfect for development, but too dangerous for production agents
-- **RESTRICTED**: Read-only mode - safe, but useless when you need to write data
+## The Problem: Two Modes Aren't Enough
 
-But what if you need an AI agent that can insert records, update statuses, or delete outdated data—without giving it the keys to restructure your entire database schema?
+The postgres-mcp server shipped with two access modes: **UNRESTRICTED** (full database access, great for dev, terrifying for anything else) and **RESTRICTED** (read-only, safe but useless when you actually need to write data). What was missing was the middle ground — let the agent insert records, update statuses, delete old data, but for the love of god don't let it restructure the entire database.
 
-That's the use case that led me to build **DML_ONLY mode**: a new access level that allows data manipulation while blocking schema changes.
+That missing middle ground is what I built: **DML_ONLY mode**.
 
-## The Real-World Wake-Up Call: Django vs. Direct Schema Changes
+## The Wake-Up Call: Django vs. Direct Schema Changes
 
-Here's what actually happened that made me realize we needed this.
-
-I was working on a Django project where the database schema is managed entirely through Django's migration system. This is standard practice:
+Here's what actually happened. I was working on a Django project where the database schema is managed entirely through Django's migration system. Standard stuff:
 
 ```python
 # models.py
@@ -34,64 +31,30 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 
-Everything was working perfectly until I gave a coding agent access to the database with UNRESTRICTED mode. The agent was helping me with some data updates when it decided to be "helpful" and added a new field directly:
+Everything was working perfectly until I gave a coding agent access with UNRESTRICTED mode. The agent was helping me with some data updates when it decided to be "helpful" and added a new field directly:
 
 ```sql
 ALTER TABLE users ADD COLUMN phone_number VARCHAR(20);
 ```
 
-**The problem?** This completely bypassed Django's migration system.
+This completely bypassed Django's migration system. Now I had a database schema that didn't match my models, no migration file tracking the change, no way to reproduce it on other environments, teammates pulling code that expected a field that didn't exist in their local databases, and production deployments that would fail or behave inconsistently. Bloody brilliant.
 
-Now I had:
-- ❌ A database schema that didn't match my models
-- ❌ No migration file tracking this change
-- ❌ No way to reproduce this on other environments
-- ❌ Teammates pulling code that expected a field that didn't exist in their local databases
-- ❌ Production deployments that would fail or behave inconsistently
+The agent thought it was helping. Instead, it created a mess that took hours to untangle — manually creating a migration to match the schema change, rolling back the ALTER on dev, applying the proper migration, and documenting what happened so we wouldn't repeat it.
 
-The agent thought it was helping. Instead, it created a mess that took hours to untangle:
+What the agent should have been able to do is INSERT new records, UPDATE existing rows, and DELETE invalid data. What it absolutely should not have been able to do is ALTER table structure, CREATE new tables, or DROP columns. In any framework-managed database environment (Django, Rails, Entity Framework, etc.), schema changes need to flow through the framework's migration system, not through direct DDL. DML_ONLY mode enforces that boundary.
 
-1. Manually create a migration to match the schema change
-2. Roll back the ALTER on dev database
-3. Apply the proper migration
-4. Document what happened so we don't repeat it
+## Planning the Implementation
 
-This is exactly the scenario DML_ONLY mode prevents. The agent should have been able to:
-- ✅ INSERT new user records
-- ✅ UPDATE phone numbers in existing rows
-- ✅ DELETE invalid data
+I started by creating a detailed implementation plan. The key insight was to use pglast, a PostgreSQL SQL parser for Python, to analyse SQL abstract syntax trees (ASTs) before execution.
 
-But it absolutely should **not** have been able to:
-- ❌ ALTER table structure
-- ❌ CREATE new tables
-- ❌ DROP columns
-
-In a framework-managed database environment (Django, Rails, Entity Framework, etc.), schema changes should flow through the framework's migration system, not through direct DDL. DML_ONLY mode enforces this boundary.
-
-## The Journey Begins: Planning the Implementation
-
-I started by creating a detailed implementation plan in `DML_ONLY_MODE_IMPLEMENTATION.md`. The key insight was to leverage pglast, a PostgreSQL SQL parser for Python, to analyze SQL abstract syntax trees (ASTs) before execution.
-
-The requirements were clear:
-- ✅ Allow: SELECT, INSERT, UPDATE, DELETE, EXPLAIN, SHOW
-- ❌ Block: CREATE, ALTER, DROP, TRUNCATE, VACUUM, and other DDL operations
+The requirements were straightforward: allow SELECT, INSERT, UPDATE, DELETE, EXPLAIN, and SHOW. Block CREATE, ALTER, DROP, TRUNCATE, VACUUM, and all other DDL operations.
 
 ## Building the DmlOnlySqlDriver
 
-The implementation centered around a new `DmlOnlySqlDriver` class that wraps the existing `SqlDriver`. Here's the approach:
+The implementation centred around a new `DmlOnlySqlDriver` class that wraps the existing `SqlDriver`. Rather than reinventing the wheel, I inherited from `SafeSqlDriver`'s battle-tested components — reusing the entire `ALLOWED_FUNCTIONS` list (100+ PostgreSQL functions), extending `ALLOWED_NODE_TYPES` with DML-specific nodes, and mirroring the validation architecture.
 
-### 1. Reuse Smart Patterns
+Validation happens in two phases. First, statement-level validation:
 
-Rather than reinventing the wheel, I inherited from `SafeSqlDriver`'s battle-tested components:
-- Reused the entire `ALLOWED_FUNCTIONS` list (100+ PostgreSQL functions)
-- Extended `ALLOWED_NODE_TYPES` with DML-specific nodes
-- Mirrored the validation architecture
-
-### 2. Two-Level Validation
-
-The validation happens in two phases:
-
-**Statement-Level Validation**:
 ```python
 ALLOWED_STMT_TYPES = {
     SelectStmt, InsertStmt, UpdateStmt, DeleteStmt,
@@ -99,30 +62,21 @@ ALLOWED_STMT_TYPES = {
 }
 ```
 
-**Node-Level Validation**:
-Recursively validates every node in the SQL AST to ensure no disallowed operations sneak through in subqueries or CTEs.
+Then node-level validation, which recursively checks every node in the SQL AST to make sure no disallowed operations sneak through in subqueries or CTEs.
 
-### 3. Handle UPSERT Operations
+One thing that needed special attention was PostgreSQL's INSERT ... ON CONFLICT (UPSERT). I had to add three additional node types — `OnConflictClause`, `InferClause`, and `IndexElem` — to support queries like:
 
-PostgreSQL's INSERT ... ON CONFLICT (UPSERT) required special attention. I had to add three additional node types:
-- `OnConflictClause` - For the ON CONFLICT clause itself
-- `InferClause` - For conflict target specification
-- `IndexElem` - For index element specification in conflict targets
-
-This allowed queries like:
 ```sql
 INSERT INTO users (id, name, email)
 VALUES (1, 'John Doe', 'john@example.com')
 ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name
 ```
 
-## The Code Review: Learning from Mistakes
+## The Code Review: Learning from My Own Mistakes
 
-After pushing my initial implementation (with all 46 tests passing!), I did a thorough code review and found 6 critical issues:
+After pushing my initial implementation (with all 46 tests passing!), I did a thorough code review of my own work and found 6 critical issues. I reckon this is one of those things where slowing down saves you a world of pain later.
 
-### Issue #1: The RawStmt Validation Bug 🐛
-
-**The Problem**: I was validating the `RawStmt` wrapper node instead of the inner statement.
+**The RawStmt validation bug** was the scariest one. I was validating the `RawStmt` wrapper node instead of the inner statement:
 
 ```python
 # WRONG: Validates the wrapper
@@ -133,26 +87,10 @@ if isinstance(stmt, RawStmt):
     self._validate_node(stmt.stmt)  # Validate inner statement
 ```
 
-### Issue #2: Generic Error Messages 😕
+**Generic error messages** were another problem. Going from "Error validating query: SELECT * FROM users" to "Statement type CreateStmt not allowed in DML_ONLY mode. Only SELECT, INSERT, UPDATE, DELETE, EXPLAIN, and SHOW are permitted" makes a massive difference for debugging.
 
-**Before**:
-```
-Error validating query: SELECT * FROM users
-```
+**Function validation safety** needed tightening — using `hasattr(node, "funcname")` could crash on unexpected node shapes, so I switched to proper type checking:
 
-**After**:
-```
-Statement type CreateStmt not allowed in DML_ONLY mode. 
-Only SELECT, INSERT, UPDATE, DELETE, EXPLAIN, and SHOW are permitted.
-```
-
-Much better for debugging!
-
-### Issue #3: Function Validation Safety
-
-**The Problem**: Using `hasattr(node, "funcname")` could crash on unexpected node shapes.
-
-**The Fix**: Use proper type checking before accessing attributes:
 ```python
 # WRONG: Assumes funcname exists
 if hasattr(node, "funcname") and node.funcname:
@@ -163,15 +101,9 @@ if isinstance(node, FuncCall):
     func_name = ".".join([str(n.sval) for n in node.funcname]).lower()
 ```
 
-### Issue #4: Timeout Error Types
+I also changed timeout errors from `ValueError` to `TimeoutError` so callers can distinguish query timeouts from validation failures.
 
-Changed timeout errors from `ValueError` to `TimeoutError` so callers can distinguish query timeouts from validation failures.
-
-### Issue #5: The WHERE Clause Debate 🤔
-
-Initially, I allowed UPDATE and DELETE without WHERE clauses, thinking "users might legitimately need to modify all rows."
-
-But then I realized: **This is the #1 cause of accidental data loss.**
+**The WHERE clause debate** was the most interesting one. Initially I allowed UPDATE and DELETE without WHERE clauses, thinking "users might legitimately need to modify all rows." But then I realised: this is the number one cause of accidental data loss.
 
 ```sql
 -- Whoops, forgot the WHERE clause!
@@ -189,84 +121,15 @@ if isinstance(stmt.stmt, (UpdateStmt, DeleteStmt)):
         )
 ```
 
-Now users get a clear error instead of accidentally nuking their database.
+Better to block a legitimate edge case than let an agent accidentally nuke your data.
 
-## Testing: Comprehensive Coverage
+## Testing
 
-The final implementation includes **48 unit tests**:
+The final implementation includes 48 unit tests covering allowed DML operations, blocked DDL operations, complex queries (CTEs, subqueries, JOINs), error handling (SQL injection, invalid syntax, timeouts), and WHERE clause requirements. Plus 7 integration tests for access mode selection. All existing tests continue to pass — no regression introduced. It might seem like overkill, but they caught issues with UPSERT, error messages, and type checking that I would have missed otherwise.
 
-- **13 tests** for allowed DML operations (INSERT, UPDATE, DELETE, UPSERT)
-- **18 tests** for blocked DDL operations (CREATE, ALTER, DROP, etc.)
-- **6 tests** for complex queries (CTEs, subqueries, JOINs)
-- **9 tests** for error handling (SQL injection, invalid syntax, timeouts)
-- **2 tests** for WHERE clause requirement
+## Using It
 
-Plus **7 integration tests** for access mode selection.
-
-All existing tests continue to pass—no regression introduced.
-
-## Real-World Examples
-
-Here's what DML_ONLY mode enables:
-
-### ✅ Data Migration Scripts
-```sql
--- Import data from CSV
-INSERT INTO users (name, email, created_at)
-SELECT name, email, NOW() FROM staging_users;
-
--- Clean up staging
-DELETE FROM staging_users WHERE imported = true;
-```
-
-### ✅ Application Agents
-```sql
--- Update order status
-UPDATE orders 
-SET status = 'shipped', shipped_at = NOW()
-WHERE order_id = 12345;
-
--- Insert audit log
-INSERT INTO audit_logs (action, user_id, timestamp)
-VALUES ('ORDER_SHIPPED', 42, NOW());
-```
-
-### ❌ Can't Break Things
-```sql
--- These are blocked:
-DROP TABLE users;           -- ❌ DDL blocked
-TRUNCATE TABLE orders;      -- ❌ DDL blocked
-CREATE INDEX idx_email;     -- ❌ DDL blocked
-ALTER TABLE users ADD...;   -- ❌ DDL blocked
-
--- These require WHERE:
-DELETE FROM users;          -- ❌ Missing WHERE
-UPDATE orders SET status;   -- ❌ Missing WHERE
-```
-
-## Key Takeaways
-
-1. **Reuse battle-tested code**: Building on top of `SafeSqlDriver` saved weeks of work and countless security bugs.
-
-2. **Code review yourself**: Taking time to review my own code before submitting revealed 6 critical issues.
-
-3. **Fail safe, not silent**: Better to block a legitimate edge case than allow accidental data destruction.
-
-4. **Test exhaustively**: 48 tests might seem like overkill, but they caught issues with UPSERT, error messages, and type checking.
-
-5. **Error messages matter**: Specific error messages turn frustrating debugging sessions into quick fixes.
-
-## The Result
-
-The DML_ONLY mode is now ready for production use. It provides:
-
-- **Safety**: WHERE clause requirements prevent accidental mass deletions
-- **Clarity**: Specific error messages guide users to fix issues
-- **Flexibility**: Supports complex queries (CTEs, JOINs, subqueries, UPSERT)
-- **Performance**: Optional timeout configuration for long-running queries
-- **Compatibility**: Zero breaking changes to existing code
-
-You can use it today:
+You can fire it up with:
 
 ```bash
 mcp-server-postgres postgres://user:pass@localhost/dbname \
@@ -274,17 +137,16 @@ mcp-server-postgres postgres://user:pass@localhost/dbname \
   --query-timeout 30
 ```
 
-## What's Next?
+It supports complex queries including CTEs, JOINs, subqueries, and UPSERT. The WHERE clause requirement prevents accidental mass deletions. Specific error messages guide you to fix issues quickly. And it introduces zero breaking changes to existing code.
 
-Potential future enhancements:
+## What I Learnt
 
-- Optional flag to allow UPDATE/DELETE without WHERE for legitimate use cases
-- Row-level security integration
-- Query cost estimation to prevent expensive operations
-- Rate limiting for DML operations
+1. **Reuse battle-tested code** — building on top of `SafeSqlDriver` saved weeks of work and countless security bugs
+2. **Code review yourself** — taking time to review my own code before submitting revealed 6 critical issues
+3. **Fail safe, not silent** — better to block a legitimate edge case than allow accidental data destruction
+4. **Test exhaustively** — 48 tests caught issues I would have missed
+5. **Error messages matter** — specific error messages turn frustrating debugging sessions into quick fixes
 
-But for now, DML_ONLY mode solves the core problem: giving AI agents and automated scripts the access they need, without the access that could destroy your data.
+There's potential for future enhancements like an optional flag to allow UPDATE/DELETE without WHERE for legitimate use cases, row-level security integration, query cost estimation, and rate limiting. But for now, DML_ONLY mode sorts out the core problem: giving AI agents the access they need without the access that could destroy your data.
 
----
-
-*The complete implementation is available my fork the [postgres-mcp repository](https://github.com/Fuzzwah/postgres-mcp/tree/feature/dml-only-mode). All 55 tests passing, code review complete, ready for merge.*
+The complete implementation is available on my fork of the [postgres-mcp repository](https://github.com/Fuzzwah/postgres-mcp/tree/feature/dml-only-mode). All 55 tests passing, code review complete, ready for merge. Stay tuned for more on how this fits into my broader agentic coding workflow.
