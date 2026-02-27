@@ -19,6 +19,30 @@ After the update: four skills (`openspec-propose`, `openspec-apply-change`, `ope
 
 The `--force` flag told the update tool to overwrite the existing files rather than bail out on finding they already existed. For this kind of migration that was the right call — I hadn't made custom modifications to those command files, so there was nothing to preserve.
 
+## The Prompt That Did It
+
+For the curious, here's the actual prompt I gave Claude to handle the whole upgrade. I'm sharing it because it's a decent example of what a well-structured agent prompt looks like — enough context to avoid wrong turns, explicit steps so nothing gets skipped, and notes about what to ignore so the agent doesn't get distracted by irrelevant noise.
+
+> Upgrade this project's OpenSpec integration from 1.1.1 to 1.2.0 using the core profile.
+>
+> **Context:** OpenSpec 1.2.0 introduces a profile system (core vs custom). The core profile provides 4 essential workflows: propose, explore, apply, archive. The new `/opsx:propose` command replaces the old new + ff two-step pattern — it creates all artifacts (proposal, design, tasks) in one step.
+>
+> **Steps:**
+>
+> 1. Verify 1.2.0 is installed globally: `openspec --version`. If not 1.2.0, run: `npm install -g @fission-ai/openspec@1.2.0`
+> 2. Set the core profile: `openspec config set profile core`
+> 3. Force-update project files: `openspec update --force`. This regenerates `.claude/commands/opsx/` (keeping only 4 core commands: propose.md, apply.md, archive.md, explore.md) and creates `.claude/skills/` with matching skill definitions. It will remove command files for deselected workflows (new, ff, continue, verify, sync, bulk-archive, onboard).
+> 4. Verify the result: `ls .claude/commands/opsx/` → exactly 4 files. `ls .claude/skills/` → 4 directories. `openspec config list` → shows profile: core.
+> 5. Update CLAUDE.md: Find the Development Workflow section and replace any references to `/opsx:new` or `/opsx:ff` with the core 4 commands.
+> 6. Update any memory files (in `.claude/projects/*/memory/`) that reference the old workflow commands. Replace `/opsx:new` and `/opsx:ff` references with `/opsx:propose`.
+> 7. Check `.claude/settings.local.json`: If it has pre-approved bash permissions, verify broad patterns like `Bash(openspec:*)` already exist. No changes needed if so.
+>
+> **Important Notes:** Custom command files outside `.claude/commands/opsx/` are NOT touched by openspec update. The PostHog telemetry errors in stderr are cosmetic — ignore them. Restart the IDE after completing the upgrade for skills to take effect.
+
+The agent ran through that in about two minutes. The mechanical steps — install, configure, update, verify — it nailed without any hand-holding. The editorial steps — updating CLAUDE.md and memory files — it handled well because the prompt gave it enough context to understand *what* had changed and *why*, not just a list of find-and-replace operations.
+
+That last point matters. If I'd just said "update references from `/opsx:new` to `/opsx:propose`" without explaining that propose replaces the new + ff two-step, the agent might have left stale `/opsx:ff` references sitting around. Context isn't decoration in these prompts — it's what keeps the agent from making reasonable-sounding mistakes.
+
 ## Commands vs Skills: What the Distinction Actually Means
 
 Here's the bit worth understanding, because it affects how you think about your whole `.claude/` setup.
