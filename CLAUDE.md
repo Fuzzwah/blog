@@ -5,7 +5,7 @@ Jekyll blog hosted at blog.fuzzwah.com. Posts about agentic coding, tools, and w
 ## Agent Behavior
 
 - **Always start in plan mode.** When a fresh session begins with a task or prompt, enter plan mode first. Explore the codebase, understand what's needed, and present a plan before writing any code or content.
-- **After a plan is approved, start an OpenSpec change.** Once the user approves your plan, immediately run `/opsx:new` to create a tracked change before implementing anything. The plan you just made is the input for the proposal. Then use `/opsx:ff` to generate the remaining artifacts, and `/opsx:apply` to implement.
+- **After a plan is approved, start an OpenSpec change.** Once the user approves your plan, immediately run `/opsx:propose` to create a tracked change with all artifacts (proposal, specs, design, tasks) generated in one step. Then use `/opsx:apply` to implement.
 
 ## Project Structure
 
@@ -18,9 +18,8 @@ Jekyll blog hosted at blog.fuzzwah.com. Posts about agentic coding, tools, and w
 
 Every blog post goes through OpenSpec. The workflow:
 
-1. **`/opsx:new`** — Provide a brief topic overview and any reference documents
-2. **`/opsx:ff`** or **`/opsx:continue`** — Generate artifacts (proposal, specs, design, tasks)
-3. **`/opsx:apply`** — Write the actual post
+1. **`/opsx:propose`** — Provide a brief topic overview and any reference documents; generates all artifacts (proposal, specs, design, tasks) in one step
+2. **`/opsx:apply`** — Write the actual post
 
 ### Voice and Style
 
