@@ -3,6 +3,10 @@ title: "Choosing Your Agentic Coding Workflow: VS Code vs Claude Code CLI"
 date: 2026-01-17 10:00:00 +1100
 author: Fuzzwah
 description: When to use Copilot Chat, the Claude Code extension, or the CLI — and why I bounce between all three.
+update_notice:
+  message: "This covers single-repo workflows. I've since moved to running parallel agents across multiple repos with Conductor."
+  url: /2026/03/28/conductor-orchestrating-ai-agents-across-repos/
+  link_text: "Read about the multi-repo approach"
 ---
 
 I reckon one of the most common questions I get asked about agentic coding is "which tool should I use?" And honestly, the answer that took me too long to figure out is: all of them, depending on what you're doing. After months of experimenting I've got some pretty strong opinions about when each tool shines, so let me walk you through it.

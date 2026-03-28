@@ -3,6 +3,10 @@ title: "From Vague Idea to Support Skill: My OpenSpec Workflow"
 date: 2026-02-15 14:00:00 +1100
 author: Fuzzwah
 description: How I wired up Claude Code and OpenSpec so a half-baked thought turns into a shipped feature with its own support toolkit.
+update_notice:
+  message: "The CLAUDE.md files mentioned here have become central to my workflow. I wrote up a technique for keeping them accurate using fresh agent sessions."
+  url: /2026/03/28/ask-the-agent-to-explain-it-back/
+  link_text: "Read about auditing context files with agents"
 ---
 
 I've been banging on about spec-driven development for a while now — from [messy PRDs](/2026/01/08/adopting-github-spec-kit/) to [Spec-Kit](/2026/02/06/switching-from-speckit-to-openspec/) to [OpenSpec](/2026/02/13/migrating-from-speckit-to-openspec-a-practical-guide/). Each step got me closer to something that actually sticks. But the workflow I've landed on now? It's honestly the first time I've felt like the whole process from "I reckon we need X" to "it's built, documented, and supportable" is one smooth ride rather than a series of disconnected sprints.
