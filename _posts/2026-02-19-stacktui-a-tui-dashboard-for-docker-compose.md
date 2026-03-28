@@ -9,6 +9,8 @@ If you've ever found yourself with six terminal tabs open — one running `docke
 
 So I built [StackTUI](https://github.com/Fuzzwah/stacktui), a TUI dashboard for Docker Compose projects. And I've just open-sourced it.
 
+![StackTUI dashboard showing service status, action buttons, and live log output](/assets/img/stacktui.svg)
+
 ## What StackTUI Does
 
 The pitch is simple: one terminal, full picture of your stack. You open it up and you can see which services are healthy, which ones have fallen over, what the logs are doing, and what branch your code is on. You can restart a misbehaving service without opening a new tab. You can tail logs from any container or log file and switch between them with a dropdown. You can pull the latest code and see which services were affected by the changes.
