@@ -4,4 +4,8 @@ body {
 
 .container {
   max-width: 990px;
+
+  &:has(#home) {
+    max-width: 1200px;
+  }
 }

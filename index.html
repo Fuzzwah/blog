@@ -4,39 +4,42 @@ title: Home
 ---
 
 <div class="home" id="home">
-	<div class="posts noList">
-		{%- for post in paginator.posts -%}
-		<article>
-			<span class="date">{{ post.date | date: '%B %d, %Y' }}</span>
-			<h3>
-				<a class="post-link" href="{{ post.url | relative_url }}">{{ post.title }}</a>
-			</h3>
-			<div class="post-excerpt">
-				{%- assign content_parts = post.content | split: '</h1>' -%}
-				{%- if content_parts.size > 1 -%}
-					{%- assign content_without_h1 = content_parts | shift | join: '</h1>' -%}
-				{%- else -%}
-					{%- assign content_without_h1 = post.content -%}
-				{%- endif -%}
-				{{ content_without_h1 | truncatewords: 100 }}
-				<br />
-				<a href="{{ post.url | relative_url }}" class="read-more">Continue reading &rarr;</a>
-			</div>
-		</article>
-		{%- endfor -%}
-	</div>
-	<!-- Pagination links -->
-	<div class="pagination">
-		{%- if paginator.previous_page -%}
-		<a
-			href="{{ paginator.previous_page_path | relative_url }}"
-			class="previous button__outline"
-			>Newer Posts</a
-		>
-		{%- endif -%} {%- if paginator.next_page -%}
-		<a href="{{ paginator.next_page_path | relative_url }}" class="next button__outline"
-			>Older Posts</a
-		>
-		{%- endif -%}
+	{%- include sidebar.html -%}
+	<div class="home-main">
+		<div class="posts noList">
+			{%- for post in paginator.posts -%}
+			<article>
+				<span class="date">{{ post.date | date: '%B %d, %Y' }}</span>
+				<h3>
+					<a class="post-link" href="{{ post.url | relative_url }}">{{ post.title }}</a>
+				</h3>
+				<div class="post-excerpt">
+					{%- assign content_parts = post.content | split: '</h1>' -%}
+					{%- if content_parts.size > 1 -%}
+						{%- assign content_without_h1 = content_parts | shift | join: '</h1>' -%}
+					{%- else -%}
+						{%- assign content_without_h1 = post.content -%}
+					{%- endif -%}
+					{{ content_without_h1 | truncatewords: 100 }}
+					<br />
+					<a href="{{ post.url | relative_url }}" class="read-more">Continue reading &rarr;</a>
+				</div>
+			</article>
+			{%- endfor -%}
+		</div>
+		<!-- Pagination links -->
+		<div class="pagination">
+			{%- if paginator.previous_page -%}
+			<a
+				href="{{ paginator.previous_page_path | relative_url }}"
+				class="previous button__outline"
+				>Newer Posts</a
+			>
+			{%- endif -%} {%- if paginator.next_page -%}
+			<a href="{{ paginator.next_page_path | relative_url }}" class="next button__outline"
+				>Older Posts</a
+			>
+			{%- endif -%}
+		</div>
 	</div>
 </div>

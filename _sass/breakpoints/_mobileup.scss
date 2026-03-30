@@ -444,6 +444,51 @@ FOOTER STYLING
 }
 
 /***************
+SIDEBAR STYLING
+***************/
+
+.sidebar {
+	margin-bottom: 2rem;
+	padding: 1rem 0;
+	border-bottom: 2px solid darken(white, 10%);
+	font-family: $sans-serif;
+
+	h4 {
+		margin: 0 0 0.5rem;
+		font-size: 0.9em;
+		text-transform: uppercase;
+		letter-spacing: 1px;
+		color: lighten(black, 40%);
+	}
+
+	ul {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem 1rem;
+
+		li {
+			font-size: 0.75em;
+			line-height: 1.6;
+
+			a {
+				text-decoration: none;
+
+				&:hover {
+					text-decoration: underline;
+				}
+			}
+
+			.sidebar-date {
+				display: none;
+			}
+		}
+	}
+}
+
+/***************
 PAGINATION STYLING
 ***************/
 
@@ -518,5 +563,21 @@ DARK THEME STYLING
 
 	.footer .container {
 		border-top-color: lighten(black, 10%);
+	}
+
+	.sidebar {
+		border-bottom-color: lighten(black, 10%);
+
+		h4 {
+			color: lighten(white, 40%);
+		}
+	}
+
+	#home .sidebar {
+		border-right-color: lighten(black, 10%);
+
+		ul li .sidebar-date {
+			color: lighten(white, 50%);
+		}
 	}
 }

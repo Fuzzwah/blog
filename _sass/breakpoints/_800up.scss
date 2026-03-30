@@ -31,6 +31,10 @@ body {
 	margin-left: auto;
 	margin-right: auto;
 	padding: 0;
+
+	&:has(#home) {
+		max-width: 1100px;
+	}
 }
 
 
@@ -39,11 +43,55 @@ HOMEPAGE STYLING
 ***************/
 
 #home {
+	display: flex;
+	gap: 2rem;
+	align-items: flex-start;
+
+	.sidebar {
+		flex: 0 0 200px;
+		position: sticky;
+		top: 1rem;
+		margin-bottom: 0;
+		padding: 0;
+		border-bottom: none;
+		border-right: 2px solid darken(white, 10%);
+		padding-right: 1.5rem;
+
+		ul {
+			display: block;
+
+			li {
+				display: flex;
+				justify-content: space-between;
+				align-items: baseline;
+				gap: 0.5rem;
+				padding: 0.15rem 0;
+
+				a {
+					font-size: 0.8em;
+					line-height: 1.4;
+				}
+
+				.sidebar-date {
+					display: inline;
+					font-size: 0.65em;
+					color: lighten(black, 50%);
+					white-space: nowrap;
+					flex-shrink: 0;
+				}
+			}
+		}
+	}
+
+	.home-main {
+		flex: 1;
+		min-width: 0;
+	}
 
 	.posts,
 	.pageTitle,
 	.pagination {
-		width: 75%;
+		width: 100%;
 		float: none;
 		margin: 0 auto 1.5em;
 	}
