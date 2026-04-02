@@ -1,6 +1,6 @@
 ---
 title: The Split-Brain Coding Agent Problem
-date: 2026-04-02 12:00:00 +1100
+date: 2026-04-02 15:05:27 +1100
 author: Fuzzwah
 description: How I stopped my coding agent from losing its mind every time I switched MacBooks.
 ---
