@@ -3,6 +3,10 @@ title: The Split-Brain Coding Agent Problem
 date: 2026-04-02 15:05:27 +1100
 author: Fuzzwah
 description: How I stopped my coding agent from losing its mind every time I switched MacBooks.
+update_notice:
+  message: "This conduit setup has since been superseded — a vendor rug pull on claude -p sent me rebuilding on Orca, and the whole change pipeline got a lot more organised."
+  url: /2026/09/07/orca-omp-and-the-whole-lifecycle/
+  link_text: "Read about my new Orca + omp environment"
 ---
 
 For a while there, my Claude Code setup was doing my head in.
