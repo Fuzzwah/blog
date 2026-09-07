@@ -4,9 +4,9 @@ date: 2026-03-28 10:00:00 +1100
 author: Fuzzwah
 description: I had six repos and too many terminal tabs. Conductor gave me parallel AI agents in isolated workspaces, and the workflow that came out of it is pretty damn good.
 update_notice:
-  message: "I've since moved away from Conductor — it didn't fit my multi-repo setup, and it didn't solve the two-machine problem I was running into."
-  url: /2026/04/02/split-brain-coding-agent/
-  link_text: "Read about how I fixed it with conduit"
+  message: "I've since moved past Conductor and conduit entirely — the current setup is Orca running a fleet of agents on a headless box, with omp as the engine and every change tracked from spec to board."
+  url: /2026/09/07/orca-omp-and-the-whole-lifecycle/
+  link_text: "Read about my new Orca + omp environment"
 ---
 
 There's a point in any project where the number of terminal tabs starts to feel like a personal failing. I'd been running Claude Code sessions across six different repos — switching between terminals, trying to remember which agent was doing what, occasionally discovering that two agents had different ideas about the database schema. It worked, technically. The same way juggling chainsaws works until it doesn't.
